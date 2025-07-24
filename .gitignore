@@ -1,0 +1,42 @@
+# Output directories
+etl-output/
+dist/
+sync-output/
+
+# Dependencies
+node_modules/
+
+# Package lock files
+package-lock.json
+
+# Build artifacts
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+example-etl.js
