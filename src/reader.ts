@@ -18,9 +18,8 @@ export interface Catalog {
   streams: CatalogStream[];
 }
 
-export interface TypesParams {
-  dtype?: Record<string, string>;
-  parse_dates?: string[];
+export interface PolarsSchema {
+  [column: string]: any;
 }
 
 export class Reader {
@@ -61,36 +60,9 @@ export class Reader {
       let readOptions: any = { ...options };
       
       if (catalog && options.catalogTypes) {
-        const typesParams = this.getTypesFromCatalog(catalog, stream);
-        if (typesParams.dtype) {
-          // Convert Python-style dtypes to Polars dtypes
-          const polarsDtypes: Record<string, any> = {};
-          for (const [col, dtype] of Object.entries(typesParams.dtype)) {
-            switch (dtype) {
-              case 'Int64':
-              case 'int64':
-                polarsDtypes[col] = pl.Int64;
-                break;
-              case 'float64':
-              case 'number':
-                polarsDtypes[col] = pl.Float64;
-                break;
-              case 'boolean':
-              case 'bool':
-                polarsDtypes[col] = pl.Bool;
-                break;
-              case 'string':
-              case 'object':
-              default:
-                polarsDtypes[col] = pl.Utf8;
-                break;
-            }
-          }
-          readOptions.dtypes = polarsDtypes;
-        }
-        
-        if (typesParams.parse_dates && typesParams.parse_dates.length > 0) {
-          readOptions.parseDates = typesParams.parse_dates;
+        const schema = this.getSchemaFromCatalog(catalog, stream);
+        if (Object.keys(schema).length > 0) {
+          readOptions.dtypes = schema;
         }
       }
 
@@ -203,7 +175,7 @@ export class Reader {
     return null;
   }
 
-  private getTypesFromCatalog(catalog: Catalog, stream: string): TypesParams {
+  private getSchemaFromCatalog(catalog: Catalog, stream: string): PolarsSchema {
     const filepath = this.inputFiles[stream];
     if (!filepath) {
       return {};
@@ -228,14 +200,7 @@ export class Reader {
     }
 
     const types = streamInfo.schema.properties;
-    const typeMapper: Record<string, string> = {
-      integer: 'Int64',
-      number: 'float64',
-      boolean: 'boolean',
-    };
-
-    const dtype: Record<string, string> = {};
-    const parseDates: string[] = [];
+    const schema: PolarsSchema = {};
 
     for (const col of headers) {
       const colType = types[col];
@@ -250,7 +215,7 @@ export class Reader {
         }
 
         if (finalColType.format === 'date-time') {
-          parseDates.push(col);
+          schema[col] = pl.Datetime;
           continue;
         }
 
@@ -260,14 +225,27 @@ export class Reader {
             : [finalColType.type];
           
           if (catalogType.length === 1) {
-            dtype[col] = typeMapper[catalogType[0]] || 'object';
+            switch (catalogType[0]) {
+              case 'integer':
+                schema[col] = pl.Int64;
+                break;
+              case 'number':
+                schema[col] = pl.Float64;
+                break;
+              case 'boolean':
+                schema[col] = pl.Bool;
+                break;
+              default:
+                schema[col] = pl.Utf8;
+                break;
+            }
             continue;
           }
         }
       }
-      dtype[col] = 'object';
+      schema[col] = pl.Utf8;
     }
 
-    return { dtype, parse_dates: parseDates };
+    return schema;
   }
 }
