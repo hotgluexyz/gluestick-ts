@@ -39,7 +39,7 @@ const reader = new gs.Reader(inputDir?, rootDir?);
 
 **Methods:**
 - `get(stream, options)` - Read a specific stream as a Polars DataFrame
-- `keys()` - Get all available stream names  
+- `keys()` - Get all available stream names
 - `getPk(stream)` - Get primary keys for a stream from catalog
 
 **Options:**
@@ -113,9 +113,9 @@ const primaryKeys = reader.getPk('users');
 
 ```typescript
 toExport(
-  dataFrame: DataFrame, 
-  outputName: string, 
-  outputDir: string, 
+  dataFrame: DataFrame,
+  outputName: string,
+  outputDir: string,
   options?: ExportOptions
 ): void
 ```

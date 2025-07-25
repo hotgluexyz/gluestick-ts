@@ -44,10 +44,10 @@ export class Reader {
     return Object.keys(this.inputFiles);
   }
 
-  get(stream: string, options: { 
-    catalogTypes?: boolean; 
-    chunksize?: number; 
-    [key: string]: any; 
+  get(stream: string, options: {
+    catalogTypes?: boolean;
+    chunksize?: number;
+    [key: string]: any;
   } = {}): pl.DataFrame | null {
     const filepath = this.inputFiles[stream];
     if (!filepath) {
@@ -58,17 +58,17 @@ export class Reader {
     if (filepath.endsWith('.csv')) {
       const catalog = this.readCatalog();
       let readOptions: any = { ...options };
-      
+
       if (catalog && options.catalogTypes) {
         const schema = this.getSchemaFromCatalog(catalog, stream);
         if (Object.keys(schema).length > 0) {
-          readOptions.dtypes = schema;
+          readOptions.dtype = schema;
         }
       }
 
       try {
         let df = pl.readCSV(filepath, readOptions);
-        
+
         // Handle date parsing if specified
         if (readOptions.parseDates) {
           for (const dateCol of readOptions.parseDates) {
@@ -88,7 +88,7 @@ export class Reader {
             }
           }
         }
-        
+
         return df;
       } catch (error) {
         console.error(`Failed to read CSV file ${filepath}:`, error);
@@ -107,12 +107,12 @@ export class Reader {
       const streamInfo = catalog.streams.find(
         (c) => c.stream === stream || c.tap_stream_id === stream
       );
-      
+
       if (streamInfo && streamInfo.metadata) {
         const breadcrumb = streamInfo.metadata.find(
           (s) => s.breadcrumb.length === 0
         );
-        
+
         if (breadcrumb && breadcrumb.metadata) {
           const tableKeyProperties = breadcrumb.metadata['table-key-properties'];
           if (Array.isArray(tableKeyProperties)) {
@@ -146,7 +146,7 @@ export class Reader {
     for (const file of allFiles) {
       const filename = path.basename(file);
       let entityType = filename.replace(/\.(csv|parquet)$/, '');
-      
+
       if (entityType.includes('-')) {
         entityType = entityType.split('-')[0];
       }
@@ -161,7 +161,7 @@ export class Reader {
 
   private readCatalog(): Catalog | null {
     const catalogPath = path.join(this.root, 'catalog.json');
-    
+
     if (fs.existsSync(catalogPath)) {
       try {
         const catalogData = fs.readFileSync(catalogPath, 'utf8');
@@ -171,7 +171,7 @@ export class Reader {
         return null;
       }
     }
-    
+
     return null;
   }
 
@@ -194,7 +194,7 @@ export class Reader {
     const streamInfo = catalog.streams.find(
       (c) => c.stream === stream || c.tap_stream_id === stream
     );
-    
+
     if (!streamInfo) {
       return {};
     }
@@ -208,7 +208,7 @@ export class Reader {
         // Handle anyOf types
         const anyOfList = colType.anyOf || [];
         let finalColType = colType;
-        
+
         if (anyOfList.length > 0) {
           const typeWithFormat = anyOfList.find((t: any) => t.format);
           finalColType = typeWithFormat || { type: 'object' };
@@ -220,10 +220,10 @@ export class Reader {
         }
 
         if (finalColType.type) {
-          const catalogType = Array.isArray(finalColType.type) 
+          const catalogType = Array.isArray(finalColType.type)
             ? finalColType.type.filter((t: string) => t !== 'null')
             : [finalColType.type];
-          
+
           if (catalogType.length === 1) {
             switch (catalogType[0]) {
               case 'integer':

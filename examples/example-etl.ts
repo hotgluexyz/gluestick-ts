@@ -11,45 +11,45 @@ const TENANT_ID = process.env.USER_ID || process.env.TENANT || 'default';
 
 async function runEtl(): Promise<void> {
   console.log('Starting ETL process...');
-  
+
   // Create Reader instance
   const input = new gs.Reader(INPUT_DIR, ROOT_DIR);
-  
+
   // Get all available streams
   const availableStreams = input.keys();
   console.log('Available streams:', availableStreams);
-  
+
   // Process each stream
   for (const key of availableStreams) {
     try {
       console.log(`Processing stream: ${key}`);
-      
+
       // Read the raw input data with catalog types
       const inputDf = input.get(key, { catalogTypes: true });
-      
+
       if (!inputDf) {
         console.log(`Failed to read data for ${key}, skipping`);
         continue;
       } else {
         console.log(inputDf)
       }
-      
+
       // Inject the tenant id as a column in the output
       const outputDf = inputDf.withColumn(
         pl.lit(TENANT_ID).alias('tenant')
       );
-      
+
       // Export the data to the format defined by environment variables
       gs.toExport(outputDf, key, OUTPUT_DIR);
-      
+
       console.log(`Successfully processed ${key}`);
-      
+
     } catch (error) {
       console.error(`Failed to process data for ${key}:`, error);
       continue;
     }
   }
-  
+
   console.log('ETL process completed');
 }
 

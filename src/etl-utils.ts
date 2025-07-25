@@ -1,7 +1,6 @@
 import fs from 'fs-extra';
 import * as path from 'path';
 import pl from 'nodejs-polars';
-import { Reader } from './reader.js';
 
 export interface ExportOptions {
   keys?: string[];
@@ -18,10 +17,8 @@ export function toExport(
   options: ExportOptions = {}
 ): void {
   const {
-    keys = [],
     exportFormat = process.env.DEFAULT_EXPORT_FORMAT || 'csv',
     outputFilePrefix = process.env.OUTPUT_FILE_PREFIX,
-    stringifyObjects = false,
     reservedVariables = {}
   } = options;
 
@@ -77,12 +74,12 @@ export function buildStringFormatVariables(
       'snapshots',
       'tenant-config.json'
     );
-    
+
     if (fs.existsSync(tenantMetadataPath)) {
       try {
         const tenantConfig = fs.readJsonSync(tenantMetadataPath);
         const tenantMetadata = tenantConfig?.hotglue_metadata?.metadata || {};
-        
+
         // Add tenant metadata that doesn't conflict with reserved keys
         for (const [k, v] of Object.entries(tenantMetadata)) {
           if (!reservedKeys.includes(k)) {
