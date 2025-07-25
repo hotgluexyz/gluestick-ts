@@ -1,8 +1,8 @@
-import * as gs from './dist/index.js';
+import * as gs from '../dist/index.js';
 import pl from 'nodejs-polars';
 
 // Standard directory for hotglue
-const ROOT_DIR = process.env.ROOT_DIR || '.';
+const ROOT_DIR = './examples';
 const INPUT_DIR = `${ROOT_DIR}/sync-output`;
 const OUTPUT_DIR = `${ROOT_DIR}/etl-output`;
 
@@ -13,7 +13,7 @@ async function runEtl(): Promise<void> {
   console.log('Starting ETL process...');
   
   // Create Reader instance
-  const input = new gs.Reader();
+  const input = new gs.Reader(INPUT_DIR, ROOT_DIR);
   
   // Get all available streams
   const availableStreams = input.keys();

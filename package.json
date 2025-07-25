@@ -13,8 +13,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:example": "tsc example-etl.ts --outDir . --module NodeNext --moduleResolution NodeNext --target ES2022",
-    "run:example": "npm run build && npm run build:example && node example-etl.js",
+    "build:example": "tsc examples/example-etl.ts --outDir examples --module NodeNext --moduleResolution NodeNext --target ES2022",
+    "run:example": "npm run build && npm run build:example && node examples/example-etl.js",
     "dev": "tsc --watch",
     "clean": "rm -rf dist"
   },
