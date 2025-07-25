@@ -13,8 +13,10 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:example": "tsc examples/example-etl.ts --outDir examples --module NodeNext --moduleResolution NodeNext --target ES2022",
-    "run:example": "npm run build && npm run build:example && node examples/example-etl.js",
+    "build:example:csv": "tsc examples/example-csv/example-csv.ts --outDir examples/example-csv --module NodeNext --moduleResolution NodeNext --target ES2022",
+    "run:example:csv": "npm run build && npm run build:example:csv && node examples/example-csv/example-csv.js",
+    "build:example:parquet": "tsc examples/example-parquet/example-parquet.ts --outDir examples/example-parquet --module NodeNext --moduleResolution NodeNext --target ES2022",
+    "run:example:parquet": "npm run build && npm run build:example:parquet && node examples/example-parquet/example-parquet.js",
     "dev": "tsc --watch",
     "clean": "rm -rf dist"
   },

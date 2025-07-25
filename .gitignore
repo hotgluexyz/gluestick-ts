@@ -1,7 +1,5 @@
 # Output directories
-etl-output/
 dist/
-sync-output/
 
 # Dependencies
 node_modules/
@@ -39,4 +37,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-examples/*.js
+# Example related artifacts
+examples/**/*.js
+sync-output/
+etl-output/

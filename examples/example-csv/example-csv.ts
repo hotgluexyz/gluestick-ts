@@ -1,8 +1,7 @@
-import * as gs from '../dist/index.js';
+import * as gs from '../../dist/index.js';
 import pl from 'nodejs-polars';
 
-// Standard directory for hotglue
-const ROOT_DIR = './examples';
+const ROOT_DIR = './examples/example-csv';
 const INPUT_DIR = `${ROOT_DIR}/sync-output`;
 const OUTPUT_DIR = `${ROOT_DIR}/etl-output`;
 

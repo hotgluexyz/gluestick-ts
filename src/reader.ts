@@ -54,7 +54,42 @@ export class Reader {
       return null;
     }
 
-    // Since we're excluding parquet support for now, only handle CSV files
+    if (filepath.endsWith('.parquet')) {
+      try {
+        // TODO: Implement chunked parquet reading if chunksize is specified
+        if (options.chunksize) {
+          console.warn('Chunked parquet reading not yet implemented, reading full file');
+        }
+
+        let df = pl.readParquet(filepath);
+
+        // Apply catalog types if requested
+        if (options.catalogTypes) {
+          const catalog = this.readCatalog();
+          if (catalog) {
+            const schema = this.getSchemaFromCatalog(catalog, stream);
+            if (Object.keys(schema).length > 0) {
+              // Apply schema transformations to the DataFrame
+              for (const [colName, polarsType] of Object.entries(schema)) {
+                if (df.columns.includes(colName)) {
+                  try {
+                    df = df.withColumn(pl.col(colName).cast(polarsType));
+                  } catch (error) {
+                    console.warn(`Failed to cast column ${colName} to ${polarsType}:`, error);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        return df;
+      } catch (error) {
+        console.error(`Failed to read parquet file ${filepath}:`, error);
+        return null;
+      }
+    }
+
     if (filepath.endsWith('.csv')) {
       const catalog = this.readCatalog();
       let readOptions: any = { ...options };
@@ -96,13 +131,50 @@ export class Reader {
       }
     }
 
+    console.warn(`Unsupported file format for ${filepath}`);
     return null;
+  }
+
+  getMetadata(stream: string): Record<string, string> {
+    const filepath = this.inputFiles[stream];
+    if (!filepath) {
+      throw new Error(`There is no file for stream with name ${stream}.`);
+    }
+
+    if (filepath.endsWith('.parquet')) {
+      try {
+        // Note: nodejs-polars doesn't expose parquet metadata like PyArrow
+        // This is a limitation we'll need to work around
+        console.warn('Parquet metadata extraction not fully supported in nodejs-polars');
+        return {};
+      } catch (error) {
+        console.error(`Failed to read parquet metadata for ${filepath}:`, error);
+        return {};
+      }
+    }
+
+    return {};
   }
 
   getPk(stream: string): string[] {
     const keyProperties: string[] = [];
-    const catalog = this.readCatalog();
+    const filepath = this.inputFiles[stream];
 
+    if (filepath && filepath.endsWith('.parquet')) {
+      // Try to get key properties from parquet metadata
+      const metadata = this.getMetadata(stream);
+      if (metadata.key_properties) {
+        try {
+          // Parse the key_properties if it's stored as a string
+          return JSON.parse(metadata.key_properties);
+        } catch (error) {
+          console.warn(`Failed to parse key_properties from parquet metadata:`, error);
+        }
+      }
+    }
+
+    // Fallback to catalog for both CSV and parquet files
+    const catalog = this.readCatalog();
     if (catalog) {
       const streamInfo = catalog.streams.find(
         (c) => c.stream === stream || c.tap_stream_id === stream
@@ -134,7 +206,7 @@ export class Reader {
       for (const entry of entries) {
         const filePath = path.join(this.dir, entry);
         if (fs.statSync(filePath).isFile()) {
-          if (filePath.endsWith('.csv')) {
+          if (filePath.endsWith('.csv') || filePath.endsWith('.parquet')) {
             allFiles.push(filePath);
           }
         }
