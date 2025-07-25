@@ -1,6 +1,6 @@
 {
   "name": "@hotglue/gluestick-ts",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TypeScript version of the gluestick ETL library for hotglue IPaaS platform",
   "type": "module",
   "main": "./dist/index.js",
