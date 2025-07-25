@@ -39,5 +39,6 @@ yarn-error.log*
 
 # Example related artifacts
 examples/**/*.js
-sync-output/
-etl-output/
+examples/**/sync-output/
+examples/**/etl-output/
+examples/**/catalog.json
