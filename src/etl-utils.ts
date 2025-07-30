@@ -1,13 +1,17 @@
 import fs from 'fs-extra';
 import * as path from 'path';
 import pl from 'nodejs-polars';
+import { Reader } from './reader.js';
+import { toSinger, SingerHeaderMap } from './singer.js';
 
 export interface ExportOptions {
   keys?: string[];
-  exportFormat?: 'csv' | 'json' | 'jsonl' | 'parquet';
+  exportFormat?: 'csv' | 'json' | 'jsonl' | 'parquet' | 'singer';
   outputFilePrefix?: string;
   stringifyObjects?: boolean;
   reservedVariables?: Record<string, string>;
+  allowObjects?: boolean;
+  schema?: SingerHeaderMap;
 }
 
 export function toExport(
@@ -40,6 +44,17 @@ export function toExport(
   switch (exportFormat) {
     case 'parquet':
       data.writeParquet(`${outputPath}.parquet`);
+      break;
+    case 'singer':
+      // Get primary key from reader
+      const reader = new Reader();
+      const keys = options.keys || reader.getPk(name);
+      // Export data as singer format
+      toSinger(data, finalName, outputDir, {
+        keys,
+        allowObjects: options.allowObjects ?? true,
+        schema: options.schema
+      });
       break;
     case 'json':
       // Convert to JSON array format

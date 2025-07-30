@@ -50,17 +50,17 @@ export function genSingerHeader(
     const dtype = df.getColumn(col).dtype.toString().toLowerCase();
     
     // Handle datetime columns
-    // if (dtype.includes('date') || dtype.includes('time')) {
-    //   // Convert datetime columns to ISO string format
-    //   try {
-    //     modifiedDf = modifiedDf.withColumn(
-    //       pl.col(col).dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-    //     );
-    //   } catch (error) {
-    //     // If conversion fails, keep as string
-    //     console.warn(`Failed to convert datetime column ${col}:`, error);
-    //   }
-    // }
+    if (dtype.includes('date') || dtype.includes('time')) {
+      // Convert datetime columns to ISO string format
+      try {
+        modifiedDf = modifiedDf.withColumn(
+          pl.col(col).date.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        );
+      } catch (error) {
+        // If conversion fails, keep as string
+        console.warn(`Failed to convert datetime column ${col}:`, error);
+      }
+    }
 
     const colType = getColumnType(dtype);
     
@@ -120,21 +120,29 @@ export function genSingerHeader(
       }
     } else {
       headerMap.properties[col] = TYPE_MAPPING.str;
+
+      // Serialize complex objects to strings for Singer compatibility
+      const values = df.getColumn(col).toArray();
+      const hasComplexObjects = values.some(v =>
+        v != null && (typeof v === 'object' || Array.isArray(v))
+      );
       
-      // Convert objects to JSON strings if not allowing objects
-      try {
-        // modifiedDf = modifiedDf.withColumn(
-        //   pl.col(col).apply((x: any) => {
-        //     if (Array.isArray(x) || (typeof x === 'object' && x !== null)) {
-        //       return JSON.stringify(x);
-        //     } else if (x != null) {
-        //       return String(x);
-        //     }
-        //     return x;
-        //   })
-        // );
-      } catch (error) {
-        console.warn(`Failed to convert column ${col} to string:`, error);
+      if (hasComplexObjects) {
+        try {
+          const serializedValues = values.map((value: any) => {
+            if (value == null) return value;
+            if (typeof value === 'object' || Array.isArray(value)) {
+              return JSON.stringify(deepConvertDatetimes(value));
+            }
+            return value;
+          });
+          
+          modifiedDf = modifiedDf.withColumn(
+            pl.lit(serializedValues).alias(col)
+          );
+        } catch (error) {
+          console.warn(`Failed to serialize complex objects in column ${col}:`, error);
+        }
       }
     }
   }
@@ -242,15 +250,21 @@ export function parseDfCols(df: pl.DataFrame, schema: SingerHeaderMap): pl.DataF
     const colType = schema.properties[col]?.type || [];
     const typeArray = Array.isArray(colType) ? colType : [colType];
     
-    // if (typeArray.some(type => ["object", "array"].includes(type))) {
-    //   try {
-    //     modifiedDf = modifiedDf.withColumn(
-    //       pl.col(col).apply((x: any) => parseObjs(x))
-    //     );
-    //   } catch (error) {
-    //     console.warn(`Failed to parse objects in column ${col}:`, error);
-    //   }
-    // }
+    // Check if column should contain objects or arrays
+    const shouldParseObjects = typeArray.some(type => ["object", "array"].includes(type));
+    
+    if (shouldParseObjects) {
+      try {
+        const values = df.getColumn(col).toArray();
+        const parsedValues = values.map((value: any) => parseObjs(value));
+        
+        modifiedDf = modifiedDf.withColumn(
+          pl.lit(parsedValues).alias(col)
+        );
+      } catch (error) {
+        console.warn(`Failed to parse objects in column ${col}:`, error);
+      }
+    }
   }
 
   return modifiedDf;
