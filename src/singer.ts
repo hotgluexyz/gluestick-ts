@@ -340,9 +340,7 @@ export function toSinger(
   };
 
   let output = '';
-  if (mode === 'w') {
-    output += JSON.stringify(schemaRecord) + '\n';
-  }
+  output += JSON.stringify(schemaRecord) + '\n';
 
   // Convert DataFrame to records and write each as a RECORD
   const records = modifiedDf.toRecords();
