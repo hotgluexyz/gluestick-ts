@@ -1,6 +1,6 @@
 # Gluestick TypeScript
 
-A powerful TypeScript library for data processing and ETL operations on the hotglue IPaaS platform, built with Polars for high-performance data manipulation. Supports multiple export formats including CSV, JSON, Parquet, and Singer specification.
+A powerful TypeScript library for data processing and ETL operations on the [hotglue](https://hotglue.com) IPaaS platform, built with Polars for high-performance data manipulation. Supports multiple export formats including CSV, JSON, Parquet, and Singer specification.
 
 ## Installation
 
