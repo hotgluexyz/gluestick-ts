@@ -26,10 +26,10 @@ console.log('Available streams:', streams);
 const dataFrame = reader.get('your_stream_name', { catalogTypes: true });
 
 // Export processed data (defaults to CSV)
-gs.toExport(dataFrame, 'output_name', './output');
+gs.toExport(dataFrame, 'output_name', './etl-output');
 
 // Export as Singer format
-gs.toExport(dataFrame, 'output_name', './output', { exportFormat: 'singer' });
+gs.toExport(dataFrame, 'output_name', './etl-output', { exportFormat: 'singer' });
 ```
 
 ## Core Components
