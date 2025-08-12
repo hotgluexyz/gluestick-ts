@@ -21,7 +21,7 @@ export function toExport(
   options: ExportOptions = {}
 ): void {
   const {
-    exportFormat = process.env.DEFAULT_EXPORT_FORMAT || 'csv',
+    exportFormat = process.env.DEFAULT_EXPORT_FORMAT || 'singer',
     outputFilePrefix = process.env.OUTPUT_FILE_PREFIX,
     reservedVariables = {}
   } = options;
