@@ -46,7 +46,7 @@ export class Reader {
 
   get(stream: string, options: {
     catalogTypes?: boolean;
-    chunksize?: number;
+    chunkSize?: number;
     [key: string]: any;
   } = {}): pl.DataFrame | null {
     const filepath = this.inputFiles[stream];
@@ -56,8 +56,8 @@ export class Reader {
 
     if (filepath.endsWith('.parquet')) {
       try {
-        // TODO: Implement chunked parquet reading if chunksize is specified
-        if (options.chunksize) {
+        // TODO: Implement chunked parquet reading if chunkSize is specified
+        if (options.chunkSize) {
           console.warn('Chunked parquet reading not yet implemented, reading full file');
         }
 

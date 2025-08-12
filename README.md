@@ -49,7 +49,7 @@ const reader = new gs.Reader(inputDir?, rootDir?);
 
 **Options:**
 - `catalogTypes: boolean` - Use catalog for automatic type inference
-
+- Other options will be passed through to Polars when reading. See [ReadCSV](https://pola-rs.github.io/nodejs-polars/interfaces/ReadCsvOptions.html) and [ReadParquet](https://pola-rs.github.io/nodejs-polars/interfaces/ReadParquetOptions.html) options for more information
 ### Export Functions
 
 Export your processed data in multiple formats:
