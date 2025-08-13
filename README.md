@@ -25,11 +25,11 @@ console.log('Available streams:', streams);
 // Read and process a specific stream
 const dataFrame = reader.get('your_stream_name', { catalogTypes: true });
 
-// Export processed data (defaults to CSV)
+// Export processed data (defaults to singer)
 gs.toExport(dataFrame, 'output_name', './etl-output');
 
-// Export as Singer format
-gs.toExport(dataFrame, 'output_name', './etl-output', { exportFormat: 'singer' });
+// Export as CSV
+gs.toExport(dataFrame, 'output_name', './etl-output', { exportFormat: 'csv' });
 ```
 
 ## Core Components
@@ -59,11 +59,11 @@ gs.toExport(dataFrame, outputName, outputDir, options?);
 ```
 
 **Supported formats:**
-- **CSV** (default) - Comma-separated values
+- **Singer** (default) - Singer specification format for data integration
+- **CSV** - Comma-separated values
 - **JSON** - Single JSON array
 - **JSONL** - Newline-delimited JSON
 - **Parquet** - Columnar storage format
-- **Singer** - Singer specification format for data integration
 
 ## Development
 
