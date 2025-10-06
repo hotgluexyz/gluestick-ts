@@ -69,7 +69,21 @@ export function toExport(
       fs.writeFileSync(`${outputPath}.jsonl`, jsonlData);
       break;
     default: // csv
-      data.writeCSV(`${outputPath}.csv`);
+      // Stringify struct columns for CSV export
+      let csvData = data;
+      const schema = data.schema;
+
+      for (const [colName, dataType] of Object.entries(schema)) {
+        // Check if the column is a struct type
+        if (dataType.variant === 'Struct') {
+          // Convert struct column to JSON string
+          csvData = csvData.withColumn(
+            csvData.getColumn(colName).cast(pl.Utf8).alias(colName)
+          );
+        }
+      }
+
+      csvData.writeCSV(`${outputPath}.csv`);
       break;
   }
 }
