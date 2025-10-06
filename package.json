@@ -17,6 +17,8 @@
     "run:example:csv": "npm run build && npm run build:example:csv && node examples/example-csv/example-csv.js",
     "build:example:parquet": "tsc examples/example-parquet/example-parquet.ts --outDir examples/example-parquet --module NodeNext --moduleResolution NodeNext --target ES2022",
     "run:example:parquet": "npm run build && npm run build:example:parquet && node examples/example-parquet/example-parquet.js",
+    "build:example:nested-csv": "tsc examples/example-nested-csv/example-nested-csv.ts --outDir examples/example-nested-csv --module NodeNext --moduleResolution NodeNext --target ES2022",
+    "run:example:nested-csv": "npm run build && npm run build:example:nested-csv && node examples/example-nested-csv/example-nested-csv.js",
     "dev": "tsc --watch",
     "clean": "rm -rf dist"
   },
