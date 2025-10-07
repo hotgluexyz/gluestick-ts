@@ -46,6 +46,16 @@ export function genSingerHeader(
     return [df, headerMap];
   }
 
+  // Convert struct columns to JSON strings first (needed for nodejs-polars v0.22+)
+  const dfSchema = df.schema;
+  for (const [colName, dataType] of Object.entries(dfSchema)) {
+    if (dataType && typeof dataType === 'object' && dataType.constructor?.name === 'Struct') {
+      modifiedDf = modifiedDf.withColumn(
+        pl.col(colName).struct.jsonEncode().alias(colName)
+      );
+    }
+  }
+
   for (const col of df.columns) {
     const dtype = df.getColumn(col).dtype.toString().toLowerCase();
     

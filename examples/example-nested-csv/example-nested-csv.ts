@@ -16,7 +16,8 @@ async function runEtl(): Promise<void> {
         { street: '123 Main St', city: 'NYC', zip: '10001' },
         { street: '456 Oak Ave', city: 'LA', zip: '90001' },
         { street: '789 Pine Rd', city: 'SF', zip: '94102' }
-      ]
+      ],
+      corrupted_data: [{"fieldname": "helloworld"}, {"fieldname": "helloworld"}, {"fieldname": "helloworld"}]
     });
 
     console.log('DataFrame with nested struct column:');
