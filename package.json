@@ -31,7 +31,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "nodejs-polars": "^0.14.0",
+    "nodejs-polars": "^0.22.0",
     "fs-extra": "^11.0.0"
   },
   "engines": {

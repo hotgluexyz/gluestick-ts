@@ -92,7 +92,10 @@ export class Reader {
 
     if (filepath.endsWith('.csv')) {
       const catalog = this.readCatalog();
-      let readOptions: any = { ...options };
+      let readOptions: any = {
+        quoteChar: '"', // Explicitly set quote character to handle quoted fields with embedded commas
+        ...options
+      };
 
       if (catalog && options.catalogTypes) {
         const schema = this.getSchemaFromCatalog(catalog, stream);

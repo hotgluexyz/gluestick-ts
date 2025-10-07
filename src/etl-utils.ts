@@ -73,29 +73,22 @@ export function toExport(
       const schema = data.schema;
       const structColumns: string[] = [];
 
-      // Identify struct columns
+      // Identify struct columns by checking the constructor name
       for (const [colName, dataType] of Object.entries(schema)) {
-        if (dataType.variant === 'Struct') {
+        if (dataType && typeof dataType === 'object' && dataType.constructor?.name === 'Struct') {
           structColumns.push(colName);
         }
       }
 
       // If there are struct columns, we need to stringify them properly
       if (structColumns.length > 0) {
-        // Convert to records to get proper JSON representation
-        const records = data.toRecords();
-
-        // Stringify struct columns in each record
-        const processedRecords = records.map(record => {
-          const newRecord = { ...record };
-          for (const col of structColumns) {
-            newRecord[col] = JSON.stringify(record[col]);
-          }
-          return newRecord;
-        });
-
-        // Create new DataFrame with stringified struct columns
-        const csvData = pl.DataFrame(processedRecords);
+        // Convert struct columns to JSON strings using struct.jsonEncode()
+        let csvData = data;
+        for (const col of structColumns) {
+          csvData = csvData.withColumn(
+            pl.col(col).struct.jsonEncode().alias(col)
+          );
+        }
         csvData.writeCSV(`${outputPath}.csv`);
       } else {
         // No struct columns, write directly
