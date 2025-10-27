@@ -255,7 +255,7 @@ export function readSnapshots(
  * @returns Updated Polars DataFrame (snapshot)
  * @throws Error if snapshot fails while trying to convert field during type coercion
  */
-export async function snapshotRecords(
+export function snapshotRecords(
   streamData: pl.DataFrame | null,
   stream: string,
   snapshotDir: string,
