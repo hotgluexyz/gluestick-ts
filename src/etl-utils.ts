@@ -197,7 +197,7 @@ export function localizeDatetime(df: pl.DataFrame, columnName: string): pl.Serie
       col = col.cast(pl.DataType.Datetime("ms"));
     } catch (e) {
       // Try parsing from string if cast fails
-      col = pl.Series(columnName, col.toArray().map(v => (v ? new Date(v) : null)));
+      col = pl.Series(columnName, col.toArray().map(v => (v ? new Date(String(v)) : null)));
       col = col.cast(pl.DataType.Datetime("ms"));
     }
   }
@@ -221,7 +221,7 @@ export function localizeDatetime(df: pl.DataFrame, columnName: string): pl.Serie
 export function readSnapshots(
   stream: string,
   snapshotDir: string,
-  options: pl.CsvReadOptions = {}
+  options: Record<string, any> = {}
 ): pl.DataFrame | null {
   const parquetPath = path.join(snapshotDir, `${stream}.snapshot.parquet`);
   const csvPath = path.join(snapshotDir, `${stream}.snapshot.csv`);
@@ -265,8 +265,8 @@ export function snapshotRecords(
   coerceTypes: boolean = false,
   localizeDatetimeTypes: boolean = false,
   overwrite: boolean = false,
-  options: pl.CsvReadOptions = {}
-): Promise<pl.DataFrame | null> {
+  options: Record<string, any> = {}
+): pl.DataFrame | null {
   // Load existing snapshot if available
   const snapshot = readSnapshots(stream, snapshotDir, options);
 
@@ -296,8 +296,8 @@ export function snapshotRecords(
           let newType = dtype;
 
           // Map pandas-like coercions
-          if (dtype === pl.DataType.Boolean) {
-            newType = pl.DataType.Boolean;
+          if (dtype === pl.DataType.Bool) {
+            newType = pl.DataType.Bool;
           } else if (
             [pl.DataType.Int64, pl.DataType.Int32].includes(dtype as any)
           ) {
@@ -305,7 +305,7 @@ export function snapshotRecords(
           }
 
           mergedData = mergedData.withColumn(
-            mergedData.getColumn(colName).cast(newType)
+            mergedData.getColumn(colName).cast(newType as any)
           );
         }
       } catch (err: any) {
